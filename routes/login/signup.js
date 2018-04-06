@@ -15,7 +15,15 @@ router.post('/', function(req, res, next) {
       });
     }else{
         var item = {
-
+          name: req.body.name,
+          email: req.body.email,
+          nickname: req.body.nickname,
+          password: hashed.toString('base64'),
+          posi: req.body.posi,
+          mKind: req.body.mKind,
+          mServiceStartDate: req.body.mServiceStartDate,
+          gender: req.body.gender,
+          salt: salt
         };
         var data = new UserData(item);
         data.save((err) => {
