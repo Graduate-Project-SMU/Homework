@@ -1,11 +1,8 @@
 var express = require('express');
 var crypto = require('crypto');
 var router = express.Router();
-// var mongoose = require('mongoose');
-// var con = mongoose.connect('mongodb://13.125.61.58:27017/mydb');
-// var Schema = mongoose.Schema;
 var UserData = require('../../config/dbconfig');
-//node와 몽고디비의 인터페이스
+var async = require('async');
 
 router.post('/', function(req, res, next) {
   let taskArray = [

@@ -4,7 +4,7 @@ var crypto = require('crypto');
 var UserData = require('../../config/dbconfig');
 var session = require('express-session');
 var async = require('async');
-router.post('/', function (req, res, next) { //1
+router.post('/', function (req, res, next) {
     let taskArray =[
         (callback)=>{
             UserData.find({
