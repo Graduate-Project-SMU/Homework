@@ -5,9 +5,79 @@ var router = express.Router();
 // var con = mongoose.connect('mongodb://13.125.61.58:27017/mydb');
 // var Schema = mongoose.Schema;
 var UserData = require('../../config/dbconfig');
-//node와 몽고디비의 인터페이스
+var async = require('async');
+
+
 
 router.post('/', function(req, res, next) {
+
+  let taskArray = [
+    (callback)=>{
+      let salt = crypto.randomByte(32).toString('base64');
+      crypto.pbkf2(req.body.password, salt, 10000, 64, 'sha512', (err,hashed)=>
+      {
+        if(err){
+          res.status(500).send({
+            stat : "fail",
+            msgs : "hashing fail"
+          });
+          callback("hashing fail",+ err);
+                }
+        else{
+          callback(null,hashed,salt);
+        }
+    });
+  },
+    (hashed,salt,callback)=>{
+        var item = {
+        name: req.body.name,
+        email: req.body.email,
+        nickname: req.body.nickname,
+        password: hashed.toString('base64'),
+        posi: req.body.posi,
+        mKind: req.body.mKind,
+        mServiceStartDate: req.body.mServiceStartDate,
+        gender: req.body.gender,
+        salt: salt
+          };
+          callback(null,item);
+          var data = new Userdata(item);
+          data.save((err,data)=>{
+            if(err){
+                res.status(500).send({
+                  stat: "fail",
+                  msgs: "sign up fail"
+                });
+                callback("sign up fail"+err);
+              }
+                else{
+                  res.status(201).send({
+                    stat: "success",
+                    msgas: "sign up sucecss",
+                    data: {
+                        name: req.body.name,
+                        email: req.body.email,
+                        nickname: req.body.nickname,
+                        posi: req.body.posi,
+                        mKind: req.body.mKind,
+                        mServiceStartDate: req.body.mServiceStartDate,
+                        gender: req.body.gender
+                    }
+                  });
+                  callback(data,null);
+                }
+          });
+        }
+  ];
+  async.waterfall(taskArray, (err, result)=>{
+      if(err) console.log(err);
+      else console.log(result);
+    });
+});
+
+
+/*  let salt = crypto.randomBytes(32).toString('base64');
+  crypto.pbkdf2(req.body.password, salt, 100000, 64, 'sha512', (err, hashed)=>{
     if(err){
       res.status(500).send({
          stat : "fail",
@@ -15,7 +85,15 @@ router.post('/', function(req, res, next) {
       });
     }else{
         var item = {
-
+            name: req.body.name,
+            email: req.body.email,
+            nickname: req.body.nickname,
+            password: hashed.toString('base64'),
+            posi: req.body.posi,
+            mKind: req.body.mKind,
+            mServiceStartDate: req.body.mServiceStartDate,
+            gender: req.body.gender,
+            salt: salt
         };
         var data = new UserData(item);
         data.save((err) => {
@@ -41,7 +119,7 @@ router.post('/', function(req, res, next) {
         });
     }
 
-
-});
+  });
+});*/
 
 module.exports = router;
